@@ -1,0 +1,18 @@
+{
+  "devDependencies": {
+    "electron": "^28.1.0",
+    "typescript": "^5.3.3"
+  },
+  "name": "sandbox",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@axolot/desktop": "file:../../@axolot/desktop"
+  }
+}

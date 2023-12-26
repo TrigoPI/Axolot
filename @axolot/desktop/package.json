@@ -1,0 +1,17 @@
+{
+  "name": "@axolot/desktop",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/axolot-desktop.js",
+  "module": "dist/axolot-desktop.js",
+  "types": "dist/axolot-desktop.d.ts",
+  "author": "",
+  "license": "ISC",
+  "files": [
+    "/dist"
+  ],
+  "devDependencies": {
+    "electron": "^28.1.0",
+    "typescript": "^5.3.3"
+  }
+}
