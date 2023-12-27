@@ -1,5 +1,7 @@
 export * from "./src/math"
 export * from "./src/graphics"
+export * from "./src/Input"
 export * from "./src/scripting"
+export * from "./src/Asset"
 export * from "./src/scene"
 export * from "./src/core"

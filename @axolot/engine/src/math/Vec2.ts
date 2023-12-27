@@ -44,7 +44,7 @@ export default class Vec2 {
     }
 
     public static Add(a: Vector2, b: Vector2): Vec2 {
-        return new Vec2(a.x + b.y, a.y + b.y);
+        return new Vec2(a.x + b.x, a.y + b.y);
     }
 
     public static Sub(a: Vector2, b: Vector2): Vec2 {

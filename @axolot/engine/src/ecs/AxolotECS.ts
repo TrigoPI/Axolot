@@ -71,6 +71,18 @@ export default class AxolotECS {
         return this.componentManager.GetComponent<T>(entity, component);
     }
 
+    public HasComponents<T extends any[]>(entity: Entity, ...args: ComponentClassObjectTuple<T>): boolean {
+        let valid: boolean = true;
+        let i: number = 0;
+
+        while (i < args.length && valid) {
+            valid = this.HasComponent(entity, args[i]);
+            i++
+        }
+        
+        return valid;
+    }
+
     public HasComponent<T>(entity: Entity, component: ComponentClassObject<T>): boolean {
         const componentType: ComponentType = this.GetComponentType<T>(component);
         const signature: TypedFastBitSet = this.entityManager.GetSignature(entity);

@@ -1,4 +1,4 @@
-import { ComponentClassObject, Entity } from "../ecs/Ecs-type";
+import { ComponentClassObject, ComponentClassObjectTuple, Entity } from "../ecs/Ecs-type";
 import AxolotECS from "../ecs/AxolotECS";
 
 export default class AxolotEntity {
@@ -9,16 +9,17 @@ export default class AxolotEntity {
         this.id = id;
         this.ecs = ecs;
     }
+    
+    public HasComponent<T>(a: ComponentClassObject<T>): boolean {
+        return this.ecs.HasComponent(this.id, (<any>a).s_ComponentClass);
+    }
+
+    public HasComponents<T extends any[]>(...a: ComponentClassObjectTuple<T>): boolean {
+        return this.ecs.HasComponents(this.id, ...a); 
+    }
 
     public AddComponent<T>(a: ComponentClassObject<T>, ...args: any[]): void {
         this.ecs.AddComponent(this.id, (<any>a).s_ComponentClass, ...args); 
     }
 
-    public RemoveComponent<T>(a: ComponentClassObject<T>): void {
-        this.ecs.RemoveComponent<T>(this.id, a);
-    }
-
-    public HasComponent<T>(a: ComponentClassObject<T>): boolean {
-        return this.ecs.HasComponent(this.id, a);
-    }
 }

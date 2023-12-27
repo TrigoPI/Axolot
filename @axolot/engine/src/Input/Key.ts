@@ -1,4 +1,8 @@
 export enum Key {
+    BUTTON_0 = "BUTTON_0",
+    BUTTON_1 = "BUTTON_1",
+    BUTTON_2 = "BUTTON_2",
+
     SPACE = "SPACE",
     ENTER = "ENTER",
 
@@ -27,5 +31,5 @@ export enum Key {
     W = 'W',
     X = 'X',
     Y = 'Y',
-    Z = 'Z'
+    Z = 'Z',
 }

@@ -53,10 +53,11 @@ export default class PhysicsEngine {
         const [ tranfrom, collider ] = this.ecs.GetComponents(entity, _Transform, _BoxCollider2D);
 
         if (this.ecs.HasComponent(entity, _SpriteRenderer)) {
-            const sprite: _SpriteRenderer = this.ecs.GetComponent(entity, _SpriteRenderer);
-            size.w = sprite.texture.GetWidth() * tranfrom.scale.x;
-            size.h = sprite.texture.GetHeight() * tranfrom.scale.y;
+            const spriteRender: _SpriteRenderer = this.ecs.GetComponent(entity, _SpriteRenderer);
+            size.w = spriteRender.Width() * tranfrom.scale.x;
+            size.h = spriteRender.Height() * tranfrom.scale.y;
         }
+
 
         const colliderDesc: RAPIER.ColliderDesc = WASM.RAPIER.ColliderDesc.cuboid(size.w / 2, size.h / 2);
         colliderDesc.setActiveEvents(WASM.RAPIER.ActiveEvents.COLLISION_EVENTS);
@@ -79,7 +80,7 @@ export default class PhysicsEngine {
         this.world.step(this.eventQueue);
     }
 
-    public OnUpdateCollision(): void {
+    public OnEventQueue(): void {
         this.eventQueue.drainCollisionEvents((handle1: number, handle2: number, started: boolean) => {
             if (started) {
                 const entity1: Entity = this.colliders.get(handle1);
@@ -87,6 +88,12 @@ export default class PhysicsEngine {
                 this.collisionHandler(entity1, entity2);
             }
         });
+    }
+
+    public OnUpdateCollider(entity: Entity): void {
+        if (this.ecs.HasComponent(entity, _RigidBody2D)) return;
+        const [ transform, collider ] = this.ecs.GetComponents(entity, _Transform, _BoxCollider2D);
+        collider.SetPosition(transform.position);
     }
 
     public OnUpdateRigidBody(entity: Entity): void {

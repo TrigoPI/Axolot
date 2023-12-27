@@ -1,8 +1,8 @@
 import { Clock } from "../math";
 import { WASM } from "../utils/Wasm";
-import { Key } from "./Key";
+import { Key } from "../Input/Key";
 
-import Input from "./Input";
+import { Input, InputState } from "../Input/Input";
 
 export default class Application {
     private static created: boolean = false;
@@ -57,15 +57,30 @@ export default class Application {
     private AddListeners(): void {
         window.addEventListener('keydown', (e: KeyboardEvent) => {
             const key: Key = (e.key != " ")? <Key>(e.key.toUpperCase()) : Key.SPACE;
-            if (Input.Key[key] != undefined) Input.Key[key] = Input.State.PRESSED;
+            if ((<any>Input).s_Key[key] != undefined) (<any>Input).s_Key[key] = InputState.PRESSED;
             this.OnKeyDown(key)
         });
 
         window.addEventListener('keyup', (e: KeyboardEvent) => {
             const key: Key = (e.key != " ")? <Key>(e.key.toUpperCase()) : Key.SPACE;
-            if (Input.Key[key] != undefined) Input.Key[key] = Input.State.RELEASED;
+            if ((<any>Input).s_Key[key] != undefined) (<any>Input).s_Key[key] = InputState.RELEASED;
             this.OnKeyUp(key);
         });
+
+        window.addEventListener('mousedown', (e: MouseEvent) => {
+            const button: string = `BUTTON_${e.button}`;
+            if ((<any>Input).s_Key[button] != undefined) (<any>Input).s_Key[button] = InputState.PRESSED;
+        });
+
+        window.addEventListener('mouseup', (e: MouseEvent) => {
+            const button: string = `BUTTON_${e.button}`;
+            if ((<any>Input).s_Key[button] != undefined) (<any>Input).s_Key[button] = InputState.RELEASED;
+        });
+
+        window.addEventListener('mousemove', (e: MouseEvent) => {
+            (<any>Input).s_Mouse.x = e.clientX;
+            (<any>Input).s_Mouse.y = e.clientY;
+        })
 
         window.addEventListener('resize', (e: UIEvent) => this.OnResize(window.innerWidth, window.innerHeight));
     }
