@@ -1,10 +1,10 @@
 {
-  "name": "@axolot/engine",
+  "name": "@axolot/server",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/axolot-engine.js",
-  "module": "dist/axolot-engine.js",
-  "types": "dist/axolot-engine.d.ts",
+  "main": "dist/axolot-server.js",
+  "module": "dist/axolot-server.js",
+  "types": "dist/axolot-server.d.ts",
   "author": "",
   "license": "ISC",
   "files": [
@@ -12,13 +12,11 @@
   ],
   "devDependencies": {
     "@types/node": "^20.10.4",
+    "@types/p2": "^0.7.44",
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "@dimforge/rapier2d": "^0.11.2",
-    "@types/p2": "^0.7.44",
     "p2": "^0.7.1",
-    "pixi.js": "^7.3.2",
     "typedfastbitset": "^0.4.2"
   }
 }

@@ -1,6 +1,4 @@
 export * from "./src/math"
-export * from "./src/Input"
-export * from "./src/graphics"
 export * from "./src/physics"
 export * from "./src/scripting"
 export * from "./src/Asset"

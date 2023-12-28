@@ -1,4 +1,3 @@
-import Renderer from "../graphics/Renderer";
 import ScriptingEngine from "../scripting/ScriptingEngine";
 import PhysicsEngine from "../physics/physicsEngine";
 
@@ -6,21 +5,20 @@ import { Entity } from "../ecs/Ecs-type";
 import AxolotEntity from "./AxolotEntity";
 import AxolotECS from "../ecs/AxolotECS";
 
-import { ComponentName, _BoxCollider2D, _RigidBody2D, _Script, _SpriteRenderer, _Tag, _Transform } from "./Components";
+import { ComponentName, _BoxCollider2D, _RigidBody2D, _Script, _Tag, _Transform } from "./Components";
 import { ComponentDesc, Prefab } from "../Asset/Prefab";
 import { Vector2 } from "../math";
-import { PhysicsTarget } from "../physics/Engines";
-import PhysicsFactory from "../physics/PhysicsFactory";
 
 export default class Scene {
     private ecs: AxolotECS;
 
-    private renderer: Renderer;
     private scriptingEngine: ScriptingEngine;
     private physicsEngine: PhysicsEngine;
 
     public constructor() {
         this.ecs = new AxolotECS();
+        this.scriptingEngine = new ScriptingEngine();
+        this.physicsEngine = new PhysicsEngine();
     }
 
     public CreateEntity(name: string = undefined): AxolotEntity {
@@ -45,9 +43,6 @@ export default class Scene {
                 case ComponentName.TRANSFORM:
                     this.ecs.AddComponent(entity, _Transform, ...decs.args);
                     break;
-                case ComponentName.SPRITE_RENDERER:
-                    this.ecs.AddComponent(entity, _SpriteRenderer, ...decs.args);
-                    break;
                 case ComponentName.RIGID_BODY_2D:
                     this.ecs.AddComponent(entity, _RigidBody2D, ...decs.args);
                     break
@@ -63,16 +58,7 @@ export default class Scene {
         return axolotEntity;
     }
 
-    public SetPhysicsEngine(target: PhysicsTarget): void {
-        PhysicsFactory.SetTarget(target);
-    }
-
-    public ResizeView(width: number, height: number): void {
-        this.renderer.ResizeView(width, height);
-    }
-
     public OnRuntimeStart(): void {
-        this.OnRenderingStart();
         this.OnPhysics2dStart();
         this.OnScriptingStart();
     }
@@ -80,7 +66,6 @@ export default class Scene {
     public OnRuntimeUpdate(dt: number): void {
         this.OnScriptingUpdate(dt);
         this.OnUpdatePhysics(dt);
-        this.OnUpdateSpriteRenderer();
     }
 
     private OnInstantiate(prefab: Prefab, position: Vector2, rotation: number): Entity {
@@ -107,10 +92,6 @@ export default class Scene {
             this.physicsEngine.OnCreateCollider(entityId);
         }
         
-        if (this.ecs.HasComponents(entityId, _SpriteRenderer)) {
-            this.renderer.OnAddSpriteRenderer(entityId);
-        }
-        
         if (this.ecs.HasComponent(entityId, _Script)) {
             this.scriptingEngine.OnCreateScriptInstance(entityId);
         }
@@ -120,23 +101,20 @@ export default class Scene {
 
     private OnUpdatePhysics(dt: number): void {
         const entitiesRb: Entity[] = this.ecs.GetEntities(_Transform, _RigidBody2D);
+        const entitiesBc: Entity[] = this.ecs.GetEntities(_BoxCollider2D, _RigidBody2D);
+
+        for (let i: number = 0; i < entitiesBc.length; i++) {
+            const entity: Entity = entitiesBc[i];    
+            this.physicsEngine.OnUpdateCollider(entity);
+        }
+
         this.physicsEngine.OnUpdatePhysics(dt);
+        this.physicsEngine.OnEventQueue();
 
         for (let i: number = 0; i < entitiesRb.length; i++) {
             const entity: Entity = entitiesRb[i]; 
             this.physicsEngine.OnUpdateRigidBody(entity);
         }
-    }
-
-    private OnUpdateSpriteRenderer(): void {        
-        const entities: Entity[] = this.ecs.GetEntities(_Transform, _SpriteRenderer);
-
-        for (let i: number = 0; i < entities.length; i++) {
-            const entity: Entity = entities[i]; 
-            this.renderer.OnUpdateSpriteRenderer(entity);
-        }
-        
-        this.renderer.EndScence();
     }
 
     private OnScriptingUpdate(dt: number): void {
@@ -147,26 +125,20 @@ export default class Scene {
         }
     }
 
-    private OnRenderingStart(): void {
-        this.renderer = new Renderer();
-        this.renderer.SetECS(this.ecs);
-        this.renderer.CreateCanvas(window.innerWidth, window.innerHeight);
-        
-        const entities: Entity[] = this.ecs.GetEntities(_Transform, _SpriteRenderer);
-
+    public OnServerUpdate(): void {
+        const entities: Entity[] = this.ecs.GetEntities(_Script, _Tag);
         for (let i: number = 0; i < entities.length; i++) {
-            const entity: Entity = entities[i]; 
-            this.renderer.OnAddSpriteRenderer(entity);
+            const entity: Entity = entities[i];
+            this.scriptingEngine.OnUpdateServerScript(entity);
         }
     }
 
     private OnPhysics2dStart(): void {
-        this.physicsEngine = new PhysicsEngine();
         this.physicsEngine.SetECS(this.ecs);
         this.physicsEngine.AddCollisionListener((a: Entity, b: Entity) => this.scriptingEngine.OnCollision(a, b));
 
         const entitiesRb: Entity[] = this.ecs.GetEntities(_Transform, _RigidBody2D);
-        const entitiesBc: Entity[] = this.ecs.GetEntities(_Transform, _BoxCollider2D, _RigidBody2D);
+        const entitiesBc: Entity[] = this.ecs.GetEntities(_Transform, _BoxCollider2D);
 
         for (let i: number = 0; i < entitiesRb.length; i++) {
             const entity: Entity = entitiesRb[i]; 
@@ -180,11 +152,10 @@ export default class Scene {
     }
 
     private OnScriptingStart(): void {
-        this.scriptingEngine = new ScriptingEngine();
+        const entities: Entity[] = this.ecs.GetEntities(_Script, _Tag);
+
         this.scriptingEngine.SetECS(this.ecs);
         this.scriptingEngine.AddInstantiateListener((prefab: Prefab, position: Vector2, rotation: number) => this.OnInstantiate(prefab, position, rotation));
-        
-        const entities: Entity[] = this.ecs.GetEntities(_Script, _Tag);
 
         for (let i: number = 0; i < entities.length; i++) {
             const entity: Entity = entities[i];
